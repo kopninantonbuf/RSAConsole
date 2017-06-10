@@ -126,7 +126,7 @@ using namespace NTL;
 #define base_dec_bit 9
 #define base 0x40000000  // 2^30
 
-int schet(ZZ& n)
+int schet(ZZ n)
 {
 	int c = 0;
 	while (n > 0)
@@ -150,65 +150,90 @@ bool isMod3(ZZ n)
 	else return false;
 }
 
-ZZ Get_Random_Prime(const int bits)
+//ZZ Get_Random_Prime(const int bits)
+//{
+//	ZZ Ret;
+//	if (bits > 0)
+//		Ret = (rand() % 9 + 1);
+//	int i;
+//	for (i = 2; i + base_dec_bit - 1 < bits; i += base_dec_bit)
+//	{
+//		int k = 0;
+//		for (int j = 1; j <= base_dec_bit; ++j)
+//			k = k * 10 + rand() % 10;
+//		Ret = Ret * base + k;
+//	}
+//	for (int j = i; j < bits - 1; ++j)
+//		Ret = Ret * 10 + (rand() % 10);
+//
+//		int k = rand() % 10;
+//		if (k > 0 && k <= 3)
+//			k = 1;
+//		else if (k > 3 && k <= 6)
+//			k = 3;
+//		else if (k > 6 && k <= 8)
+//			k = 7;
+//		else k = 9;
+//			
+//		
+//		Ret = Ret * 10 + k;
+//
+//		if (isMod3(Ret) == true)
+//			return Get_Random_Prime(bits);
+//		else return Ret;
+//}
+
+
+
+
+ZZ Get_Random_Prime(long bits)
 {
-	ZZ Ret;
-	if (bits > 0)
-		Ret = (rand() % 9 + 1);
-	int i;
-	for (i = 2; i + base_dec_bit - 1 < bits; i += base_dec_bit)
-	{
-		int k = 0;
-		for (int j = 1; j <= base_dec_bit; ++j)
-			k = k * 10 + rand() % 10;
-		Ret = Ret * base + k;
-	}
-	for (int j = i; j < bits - 1; ++j)
-		Ret = Ret * 10 + (rand() % 10);
-
-		int k = rand() % 10;
-		if (k > 0 && k <= 3)
-			k = 1;
-		else if (k > 3 && k <= 6)
-			k = 3;
-		else if (k > 6 && k <= 8)
-			k = 7;
-		else k = 9;
-			
-		
-		Ret = Ret * 10 + k;
-
-		if (isMod3(Ret) == true)
-			return Get_Random_Prime(bits);
-		else return Ret;
+	//SetSeed(to_ZZ((double)time(NULL)));
+	ZZ Ret = RandomLen_ZZ(bits);
+	if (Ret % 2 == 0 || Ret % 5 == 0 || isMod3(Ret) == true)
+		return Get_Random_Prime(bits);
+	else return Ret;
 }
 
 
 
-ZZ Get_Random(const int bits)
+ZZ Get_Random(long bits)
 {
-	ZZ Ret;
-	if (bits > 0)
-		Ret = (rand() % 9 + 1);
-	int i;
-	for (i = 2; i + base_dec_bit - 1 < bits; i += base_dec_bit)
-	{
-		int k = 0;
-		for (int j = 1; j <= base_dec_bit; ++j)
-			k = k * 10 + rand() % 10;
-		Ret = Ret * base + k;
-	}
-	for (int j = i; j < bits; ++j)
-		Ret = Ret * 10 + (rand() % 10);
-
-	if (Ret == 2 || Ret == 1)
+	ZZ Ret = RandomLen_ZZ(bits);
+	if (Ret <=2)
 		return Get_Random(bits);
 	else return Ret;
 }
 
+
+
+//ZZ Get_Random(const int bits)
+//{
+//	ZZ Ret;
+//	if (bits > 0)
+//		Ret = (rand() % 9 + 1);
+//	int i;
+//	for (i = 2; i + base_dec_bit - 1 < bits; i += base_dec_bit)
+//	{
+//		int k = 0;
+//		for (int j = 1; j <= base_dec_bit; ++j)
+//			k = k * 10 + rand() % 10;
+//		Ret = Ret * base + k;
+//	}
+//	for (int j = i; j < bits; ++j)
+//		Ret = Ret * 10 + (rand() % 10);
+//
+//	if (Ret == 2 || Ret == 1)
+//		return Get_Random(bits);
+//	else return Ret;
+//}
+
 ZZ Exp_Mod(ZZ& a, ZZ& n)
 {
-	return PowerMod(a, (n - 1) / 2, n);
+	ZZ e = PowerMod(a, (n - 1) / 2, n);
+	if (e - n == -1)
+		return (ZZ)-1;
+	else return PowerMod(a, (n - 1) / 2, n);
 }
 
 int main()
@@ -216,7 +241,7 @@ int main()
 	srand(time(NULL));
 	SetSeed(to_ZZ((double)time(NULL)));
 	ZZ a, n;
-	long x =309; //в битах
+	long x = 512; //в битах
 	//x = power2_ZZ(10024);
 	//int r = schet(x);
 	//cout << "r= " << r << endl;
@@ -228,14 +253,14 @@ int main()
 
 		i++;
 		cout << "i= " << i;
-		//GenPrime(n ,x);
-		n = Get_Random_Prime(x);
+		GenPrime(n ,x);
+		//n = Get_Random_Prime(x);
 		//n = RandomLen_ZZ(x);
 		cout <<"n= "<< n << endl;
 		//cout << schet(n) << endl;
 
 
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			ZZ a;
 			a = Get_Random(rand() % x + 1);
@@ -252,8 +277,8 @@ int main()
 			}
 
 
-			//cout << "J " << Jacobi(a, n) << endl;
-			//cout << "Exp " << Exp_Mod(a, n) << endl;
+			cout << "J " << Jacobi(a, n) << endl;
+			cout << "Exp " << Exp_Mod(a, n) << endl;
 
 			if (Exp_Mod(a, n) != Jacobi(a, n))
 			{
