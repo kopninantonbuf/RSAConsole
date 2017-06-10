@@ -2,6 +2,7 @@
 #include <time.h> // Заголовочный файл time.h потребуется для генерации псевдослучайных чисел в зависимости от текущего времени.
 #include <fstream> // Заголовочный файл, предназначенный для работы с файлами.
 
+
 using namespace std;
 using namespace NTL;
 
@@ -136,7 +137,7 @@ int schet(ZZ& n)
 	return c;
 };
 
-bool isMod3Eq0(ZZ& n)
+bool isMod3(ZZ n)
 {
 	ZZ sum;
 	while (n != 0)
@@ -177,9 +178,9 @@ ZZ Get_Random_Prime(const int bits)
 		
 		Ret = Ret * 10 + k;
 
-		/*if (isMod3Eq0(Ret) == true)
-			Get_Random_Prime(bits);*/
-		return Ret;
+		if (isMod3(Ret) == true)
+			return Get_Random_Prime(bits);
+		else return Ret;
 }
 
 
@@ -200,9 +201,9 @@ ZZ Get_Random(const int bits)
 	for (int j = i; j < bits; ++j)
 		Ret = Ret * 10 + (rand() % 10);
 
-	if (Ret == 2)
-		Get_Random(bits);
-	return Ret;
+	if (Ret == 2 || Ret == 1)
+		return Get_Random(bits);
+	else return Ret;
 }
 
 ZZ Exp_Mod(ZZ& a, ZZ& n)
@@ -213,27 +214,33 @@ ZZ Exp_Mod(ZZ& a, ZZ& n)
 int main()
 {
 	srand(time(NULL));
+	SetSeed(to_ZZ((double)time(NULL)));
 	ZZ a, n;
-	ZZ x =(ZZ)1024; //в битах
-	x = power2_ZZ(10024);
-	int r = schet(x);
-	cout << "r= " << r << endl;
+	long x =309; //в битах
+	//x = power2_ZZ(10024);
+	//int r = schet(x);
+	//cout << "r= " << r << endl;
 	bool b = false;
+	int 		i = 0;
 
 	while (b == false)
 	{
-		//GenPrime(n ,r);
-		n = Get_Random_Prime(r);
+
+		i++;
+		cout << "i= " << i;
+		//GenPrime(n ,x);
+		n = Get_Random_Prime(x);
+		//n = RandomLen_ZZ(x);
 		cout <<"n= "<< n << endl;
-		cout << schet(n) << endl;
+		//cout << schet(n) << endl;
 
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			ZZ a;
-			a = Get_Random(rand() % r + 1);
+			a = Get_Random(rand() % x + 1);
 			while (a > n)
-				a = Get_Random(rand() % r + 1);
+				a = Get_Random(rand() % x + 1);
 
 			//cout << "a= "<< a << endl;
 
@@ -262,3 +269,4 @@ int main()
 
 	system("pause");
 }
+
