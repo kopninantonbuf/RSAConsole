@@ -6,20 +6,93 @@
 using namespace std;
 using namespace NTL;
 
-// В этой функции генерируются два простых числа p и q средствами библиотеки NTL (функция GenPrime), вычисляется их произведение n и значение функции Эйлера. Параметр sz позволяет задать необходимый размер генерируемых чисел.
-void GenPrimes(ZZ& p, ZZ& q, ZZ& n, ZZ& eulerN, int sz)
+// Проверка делимости суммы цифр в числе n на 3, позволяющее откинуть числа кратные трём.
+bool isMod3(ZZ n)
 {
-	GenPrime(p, sz);
-	GenPrime(q, sz);
+	ZZ sum;
+	while (n != 0)
+	{
+		sum += n % 10;
+		n /= 10;
+	}
+	if (sum % 3 == 0)
+		return true;
+	else return false;
+}
+
+// Генерация случайного числа длиной bits бит такого, которое не делится на 2, 3 и 5.
+ZZ Get_Random_Prime(long bits)
+{
+	ZZ r = RandomLen_ZZ(bits);
+	if (r % 2 == 0 || r % 5 == 0 || isMod3(r) == true)
+		return Get_Random_Prime(bits);
+	else return r;
+}
+
+// Генерация случайного числа длиной bits бит.
+ZZ Get_Random(long bits)
+{
+	ZZ r = RandomLen_ZZ(bits);
+	if (r <= 2)
+		return Get_Random(bits);
+	else return r;
+}
+
+// Вычисление выражения (a^(n-1/2)) mod n.
+ZZ Exp_Mod(ZZ& a, ZZ& n)
+{
+	ZZ e = PowerMod(a, (n - 1) / 2, n);
+	if (e - n == -1)
+		return (ZZ)-1;
+	else return PowerMod(a, (n - 1) / 2, n);
+}
+
+// Реализация теста Соловея-Штрассена. bits - количество бит в искомом простом числе, count_of_tests - количество тестов, которое необходимо проделать для числа.
+ZZ SolovayStrassen(long bits, int count_of_tests)
+{
+	ZZ a, n;
+	bool b = false;
+
+	while (b == false)
+	{
+		n = Get_Random_Prime(bits);
+
+		for (int i = 0; i < count_of_tests; i++)
+		{
+			ZZ a;
+			a = Get_Random(rand() % bits + 1);
+			while (a > n)
+				a = Get_Random(rand() % bits + 1);
+
+			if (GCD(a, n) > 1)
+				break;
+
+			if (Exp_Mod(a, n) != Jacobi(a, n))
+				break;
+
+			if (i == 1)
+				b = true;
+		}
+	}
+	return n;
+}
+
+// В этой функции генерируются два простых числа p и q с помощью теста Соловея-Штрассена, вычисляется их произведение n и значение функции Эйлера. Параметр sz позволяет задать необходимый размер генерируемых чисел.
+void GenPrimes(ZZ& p, ZZ& q, ZZ& n, ZZ& eulerN, int sz, int count_of_tests)
+{
+	p = SolovayStrassen(sz, count_of_tests);
+	cout << 'p';
+	q = SolovayStrassen(sz, count_of_tests);
+	cout << ' q';
 	n = p * q;
 	eulerN = (p - 1) * (q - 1);
 }
 
 // Функция GenKeys создаёт открытую экспоненту e и генерирует по ней секретную экспоненту d.
-void GenKeys(ZZ& e, ZZ& d, ZZ& eulerN, long sz)
+void GenKeys(ZZ& e, ZZ& d, ZZ& eulerN, long sz, int count_of_tests)
 {
 	do
-		GenPrime(e, sz);
+		e = SolovayStrassen(sz, count_of_tests);
 	while (e >= eulerN && GCD(e, eulerN) != 1);
 	InvMod(d, e, eulerN);
 }
@@ -76,17 +149,18 @@ string ZZToString(ZZ num)
 ZZ Encryption(string str, ZZ& e, ZZ& n)
 {
 	ZZ zz_from = StringToZZ(str);
-	return PowerMod(zz_from, e, n);
+	return PowerMod(zz_from % n, e, n);
 }
 
 // Функция дешифрования.
 string Decryption(ZZ& cipherText, ZZ& d, ZZ& n)
 {
-	return ZZToString(PowerMod(cipherText, d, n));
+	return ZZToString(PowerMod(cipherText % n, d, n));
 }
 
-const long SZ_PRIME = 512;
-const long SZ_E = 256;
+const long SZ_PRIME = 1024;
+const long SZ_E = 512;
+const int CNT_OF_TESTS = 2;
 
 int main()
 {
@@ -97,14 +171,14 @@ int main()
 	string plainText, decryptedCipherText;
 
 	cout << "Генерация случайных простых чисел p и q. \n";
-	GenPrimes(p, q, n, eulerN, SZ_PRIME);
+	GenPrimes(p, q, n, eulerN, SZ_PRIME, CNT_OF_TESTS);
 	cout << "p: " << p << endl << endl;
 	cout << "q: " << q << endl << endl;
 	cout << "n: " << n << endl << endl;
 	cout << "euler(N): " << eulerN << endl << endl << "========================================" << endl;
 
 	cout << "Генерация открытой и секретной экспоненты. \n";
-	GenKeys(e, d, eulerN, SZ_E);
+	GenKeys(e, d, eulerN, SZ_E, CNT_OF_TESTS);
 	cout << "e: " << e << endl << endl;
 	cout << "d: " << d << endl << endl << "========================================" << endl;
 
@@ -122,7 +196,6 @@ int main()
 	// Декодирование сообщения.
 	decryptedCipherText = Decryption(cipherText, d, n);
 	cout << "decryptedCipherText: " << decryptedCipherText << endl << endl;
-
 
 	system("pause");
 }
