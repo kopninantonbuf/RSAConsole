@@ -217,14 +217,14 @@ int main()
 	ZZ x =(ZZ)1024; //в битах
 	x = power2_ZZ(10024);
 	int r = schet(x);
-	///!!cout << "r= " << r << endl;
+	cout << "r= " << r << endl;
 	bool b = false;
 
 	while (b == false)
 	{
 		//GenPrime(n ,r);
 		n = Get_Random_Prime(r);
-		//cout <<"n= "<< n << endl;
+		cout <<"n= "<< n << endl;
 		cout << schet(n) << endl;
 
 
