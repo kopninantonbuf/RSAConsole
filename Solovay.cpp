@@ -41,29 +41,21 @@ ZZ Exp_Mod(ZZ& a, ZZ& n)
 	else return PowerMod(a, (n - 1) / 2, n);
 }
 
-int main()
+ZZ SolovayStrassen(long bits, int count_of_tests)
 {
-	srand(time(NULL));
-	SetSeed(to_ZZ((double)time(NULL)));
 	ZZ a, n;
-	long x = 512;
 	bool b = false;
-	int 		i = 0;
 
 	while (b == false)
 	{
+		n = Get_Random_Prime(bits);
 
-		i++;
-		cout << "i= " << i;
-		n = Get_Random_Prime(x);
-		cout << "n= " << n << endl;
-
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < count_of_tests; i++)
 		{
 			ZZ a;
-			a = Get_Random(rand() % x + 1);
+			a = Get_Random(rand() % bits + 1);
 			while (a > n)
-				a = Get_Random(rand() % x + 1);
+				a = Get_Random(rand() % bits + 1);
 
 			if (GCD(a, n) > 1)
 				break;
@@ -75,8 +67,5 @@ int main()
 				b = true;
 		}
 	}
-
-	cout << n << endl;
-
-	system("pause");
+	return n;
 }
