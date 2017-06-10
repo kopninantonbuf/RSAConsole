@@ -241,7 +241,7 @@ int main()
 	srand(time(NULL));
 	SetSeed(to_ZZ((double)time(NULL)));
 	ZZ a, n;
-	long x = 512; //в битах
+	long x = 2048; //в битах
 	//x = power2_ZZ(10024);
 	//int r = schet(x);
 	//cout << "r= " << r << endl;
@@ -253,8 +253,8 @@ int main()
 
 		i++;
 		cout << "i= " << i;
-		GenPrime(n ,x);
-		//n = Get_Random_Prime(x);
+		//GenPrime(n ,x);
+		n = Get_Random_Prime(x);
 		//n = RandomLen_ZZ(x);
 		cout <<"n= "<< n << endl;
 		//cout << schet(n) << endl;
@@ -277,8 +277,8 @@ int main()
 			}
 
 
-			cout << "J " << Jacobi(a, n) << endl;
-			cout << "Exp " << Exp_Mod(a, n) << endl;
+			//cout << "J " << Jacobi(a, n) << endl;
+			//cout << "Exp " << Exp_Mod(a, n) << endl;
 
 			if (Exp_Mod(a, n) != Jacobi(a, n))
 			{
